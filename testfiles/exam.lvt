@@ -1,0 +1,31 @@
+\input{regression-test.tex}
+\documentclass{exam}
+\usepackage[mc=bubble]{exam-gradescope}
+\newcommand\mcpoints{3}
+\begin{document}
+\begin{questions}
+\question[\mcpoints]\label{mc-a} One?
+\begin{choices}\choice a\choice b\CorrectChoice c\end{choices}
+\question[1\half]\label{mc-b} Two?
+\begin{oneparchoices}\CorrectChoice a\choice b\end{oneparchoices}
+\question[8]\label{fr-one} Prove it.\vspace{3in}
+\question[10]\label{fr-two} Two parts.
+\begin{parts}
+  \part \gradescopequestion{points=6} First.\vspace{2in}
+  \part \gradescopequestion{points=4} Second.\vspace{2in}
+\end{parts}
+\question[10]\label{fr-three} Two parts, no points.
+\begin{parts}
+  \part First.\vspace{1in}
+  \part Second.
+\end{parts}
+\end{questions}
+\clearpage
+\START
+\directlua{
+  examgradescope.resolve_regions()
+  texio.write_nl("log", examgradescope.key_csv())
+  texio.write_nl("log", examgradescope.to_json(examgradescope.outline()))
+  texio.write_nl("log", examgradescope.to_json(examgradescope.manifest()))
+}
+\END

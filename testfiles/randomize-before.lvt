@@ -1,0 +1,14 @@
+\input{regression-test.tex}
+\documentclass{exam}
+\usepackage[overload]{exam-randomizechoices}
+\usepackage[mc=bubble]{exam-gradescope}
+\begin{document}
+\begin{questions}
+\question[1] Yes or no? \begin{oneparchoices}[norandomize]\choice Yes\CorrectChoice No\end{oneparchoices}
+\question[1] Pick. \begin{choices}[norandomize]\choice a\choice b\CorrectChoice c\end{choices}
+\question[2] Pick all. \begin{checkboxes}[norandomize]\CorrectChoice a\choice b\CorrectChoice c\end{checkboxes}
+\end{questions}
+\clearpage
+\START
+\directlua{texio.write_nl("log", examgradescope.key_csv())}
+\END

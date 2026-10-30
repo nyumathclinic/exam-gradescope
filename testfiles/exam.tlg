@@ -1,0 +1,143 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+Question,Answers,Points,Type
+1,C,3.0,Exact
+2,A,1.5,Exact
+Package exam-gradescope Warning: the parts of question 5 have no points; splitting its 10 evenly (give each part's points with \gradescopequestion{points=...})
+{
+  "identification_regions": {},
+  "question_data": [
+    {
+      "title": "Question 3",
+      "weight": 8,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 19.2,
+          "y2": 49
+        }
+      ]
+    },
+    {
+      "title": "Question 4",
+      "children": [
+        {
+          "title": "(a)",
+          "weight": 6,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 51.5,
+              "y2": 71.7
+            }
+          ]
+        },
+        {
+          "title": "(b)",
+          "weight": 4,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 71.7,
+              "y2": 89.1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Question 5",
+      "children": [
+        {
+          "title": "(a)",
+          "weight": 5,
+          "crop_rect_list": [
+            {
+              "page_number": 2,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 10.7,
+              "y2": 21.8
+            }
+          ]
+        },
+        {
+          "title": "(b)",
+          "weight": 5,
+          "crop_rect_list": [
+            {
+              "page_number": 2,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 21.8,
+              "y2": 89.1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+{
+  "items": [
+    {
+      "number": 1,
+      "id": "mc-a",
+      "points": 3,
+      "type": "mc",
+      "destination": "bubble",
+      "answer": "C"
+    },
+    {
+      "number": 2,
+      "id": "mc-b",
+      "points": 1.5,
+      "type": "mc",
+      "destination": "bubble",
+      "answer": "A"
+    },
+    {
+      "number": 3,
+      "id": "fr-one",
+      "points": 8,
+      "type": "frq",
+      "destination": "gradescope"
+    },
+    {
+      "number": 4,
+      "id": "fr-two",
+      "points": 10,
+      "type": "frq",
+      "destination": "gradescope",
+      "parts": [
+        {
+          "points": 6
+        },
+        {
+          "points": 4
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "fr-three",
+      "points": 10,
+      "type": "frq",
+      "destination": "gradescope",
+      "parts": [
+        {
+          "points": 5
+        },
+        {
+          "points": 5
+        }
+      ]
+    }
+  ]
+}

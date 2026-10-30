@@ -1,0 +1,265 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+{
+  "identification_regions": {
+    "name": {
+      "page_number": 1,
+      "x1": 14.2,
+      "x2": 38.8,
+      "y1": 9.1,
+      "y2": 14.5
+    },
+    "sid": {
+      "page_number": 1,
+      "x1": 63.6,
+      "x2": 88.2,
+      "y1": 9.1,
+      "y2": 14.4
+    }
+  },
+  "question_data": [
+    {
+      "title": "",
+      "weight": 2,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 14.5,
+          "y2": 16.8
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 2,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 16.8,
+          "y2": 29.4
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 6,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 29.4,
+          "y2": 50.1
+        }
+      ]
+    },
+    {
+      "title": "",
+      "children": [
+        {
+          "title": "(a)",
+          "weight": 2,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 52.3,
+              "y2": 63.7
+            }
+          ]
+        },
+        {
+          "title": "(b)",
+          "weight": 4,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 63.7,
+              "y2": 89.1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 3,
+      "crop_rect_list": [
+        {
+          "page_number": 2,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 89.1
+        }
+      ]
+    }
+  ]
+}
+{
+  "questions": [
+    {
+      "question": "1",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct",
+          "weight": 2
+        },
+        {
+          "description": "The correct response is **B**",
+          "weight": 0
+        }
+      ]
+    },
+    {
+      "question": "2",
+      "scoring_type": "negative",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "A **should** be selected",
+          "weight": 0.4
+        },
+        {
+          "description": "B **should not** be selected",
+          "weight": 0.4
+        },
+        {
+          "description": "C **should** be selected",
+          "weight": 0.4
+        },
+        {
+          "description": "D **should not** be selected",
+          "weight": 0.4
+        },
+        {
+          "description": "E **should not** be selected",
+          "weight": 0.4
+        },
+        {
+          "description": "Correct",
+          "weight": 0
+        }
+      ]
+    },
+    {
+      "question": "3",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "No response",
+          "weight": 0,
+          "position": 1
+        }
+      ],
+      "rubric_item_groups": [
+        {
+          "description": "What is counted",
+          "mutually_exclusive": true,
+          "position": 0,
+          "rubric_items": [
+            {
+              "description": "Shows $$A \\cup B \\subseteq B \\cup A$$, and **both** inclusions",
+              "weight": 3
+            },
+            {
+              "description": "Neither inclusion",
+              "weight": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "4.2",
+      "title": "(b)",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct, and explained",
+          "weight": 4
+        },
+        {
+          "description": "Mostly correct, but small mistakes",
+          "weight": 3.33
+        },
+        {
+          "description": "Right answer, no reasons",
+          "weight": 3
+        },
+        {
+          "description": "Major mistakes",
+          "weight": 2.67
+        },
+        {
+          "description": "No response",
+          "weight": 0
+        }
+      ]
+    }
+  ]
+}
+{
+  "items": [
+    {
+      "number": 1,
+      "id": "mc-one",
+      "points": 2,
+      "type": "mc",
+      "destination": "gradescope",
+      "answer": "B"
+    },
+    {
+      "number": 2,
+      "id": "2",
+      "points": 2,
+      "type": "cata",
+      "destination": "gradescope",
+      "answer": "AC"
+    },
+    {
+      "number": 3,
+      "id": "proof",
+      "points": 6,
+      "type": "frq",
+      "destination": "gradescope"
+    },
+    {
+      "number": 4,
+      "id": "parts",
+      "points": 6,
+      "type": "frq",
+      "destination": "gradescope",
+      "parts": [
+        {
+          "points": 2
+        },
+        {
+          "points": 4
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "last",
+      "points": 3,
+      "type": "frq",
+      "destination": "gradescope"
+    }
+  ]
+}

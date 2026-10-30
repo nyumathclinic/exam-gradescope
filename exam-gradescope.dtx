@@ -1,0 +1,1563 @@
+% \iffalse meta-comment
+%<*internal>
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+%</internal>
+%<*install>
+\input docstrip.tex
+\keepsilent
+\askforoverwritefalse
+\preamble
+----------------------------------------------------------------
+exam-gradescope --- Gradescope outlines, rubrics and answer keys
+Released under the LaTeX Project Public License v1.3c or later
+See http://www.latex-project.org/lppl.txt
+----------------------------------------------------------------
+
+\endpreamble
+\postamble
+
+Copyright (C) 2026 by Matthew Leingang
+
+This work may be distributed and/or modified under the
+conditions of the LaTeX Project Public License (LPPL), either
+version 1.3c of this license or (at your option) any later
+version.  The latest version of this license is in the file:
+
+http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status) by
+Matthew Leingang.
+
+This work consists of the file  exam-gradescope.dtx
+and the derived files           exam-gradescope.ins,
+                                exam-gradescope.pdf,
+                                exam-gradescope.sty and
+                                exam-gradescope.lua.
+
+\endpostamble
+\usedir{tex/lualatex/exam-gradescope}
+\generate{
+  \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+}
+\def\MetaPrefix{--}
+\preamble
+----------------------------------------------------------------
+exam-gradescope --- Gradescope outlines, rubrics and answer keys
+Released under the LaTeX Project Public License v1.3c or later
+See http://www.latex-project.org/lppl.txt
+----------------------------------------------------------------
+
+\endpreamble
+\postamble
+
+Copyright (C) 2026 by Matthew Leingang
+
+This work may be distributed and/or modified under the
+conditions of the LaTeX Project Public License (LPPL), either
+version 1.3c of this license or (at your option) any later
+version.  The latest version of this license is in the file:
+
+http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status) by
+Matthew Leingang.
+
+This work consists of the file  exam-gradescope.dtx
+and the derived files           exam-gradescope.ins,
+                                exam-gradescope.pdf,
+                                exam-gradescope.sty and
+                                exam-gradescope.lua.
+
+\endpostamble
+\generate{
+  \file{\jobname.lua}{\from{\jobname.dtx}{lua}}
+}
+%</install>
+%<install>\endbatchfile
+%<*internal>
+\usedir{source/latex/exam-gradescope}
+\generate{
+  \file{\jobname.ins}{\from{\jobname.dtx}{install}}
+}
+\nopreamble\nopostamble
+\usedir{doc/latex/exam-gradescope}
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%</internal>
+%<*package>
+\NeedsTeXFormat{LaTeX2e}[2023/06/01]
+\ProvidesPackage{exam-gradescope}
+  [2026/10/30 v0.1 Gradescope outlines, rubrics and answer keys for the exam class]
+%</package>
+%<*driver>
+\ProvidesFile{exam-gradescope.dtx}
+  [2026/10/30 v0.1 Gradescope outlines, rubrics and answer keys for the exam class]
+\documentclass{ltxdoc}
+\usepackage{hologo}
+\usepackage[hidelinks]{hyperref}
+\providecommand\LuaLaTeX{\hologo{LuaLaTeX}}
+\newcommand\option[1]{\texttt{#1}}
+\newcommand\env[1]{\textsf{#1}}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{\jobname.dtx}
+  \PrintChanges
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+%\GetFileInfo{\jobname.dtx}
+%
+%\title{^^A
+%  \textsf{exam-gradescope} --- Gradescope outlines, rubrics and answer keys for the exam class\thanks{^^A
+%    This file describes version \fileversion, last revised \filedate.^^A
+%  }^^A
+%}
+%\author{^^A
+%  Matthew Leingang^^A
+%}
+%\date{Released \filedate}
+%
+%\maketitle
+%
+%\changes{v0.1}{2026/10/30}{First version}
+%
+% \begin{abstract}
+%   The \textsf{exam-gradescope} package records the questions of a document
+%   made with the \textsf{exam} class while it is typeset with \LuaLaTeX, and
+%   writes the files that Gradescope (\url{https://www.gradescope.com}) needs
+%   to grade it: an outline of where each question is on the page, a rubric
+%   for each question, an answer key for a bubble sheet, and a manifest of the
+%   questions for item analysis.
+% \end{abstract}
+%
+% \tableofcontents
+%
+% \section{Introduction}
+%
+% Grading a paper exam on Gradescope starts with an \emph{outline}: a box,
+% drawn by hand on the blank exam, around each question and around the
+% student's name and ID. Each question then needs a \emph{rubric}. For a
+% multiple-choice question that means copying the right answer, which differs
+% from version to version, into the rubric by hand. Questions answered on a
+% bubble sheet need an answer key instead.
+%
+% Everything this takes is already in the \LaTeX{} source: where each question
+% falls on the page, how many points it is worth, which choice is correct.
+% This package writes it down while the document is typeset:
+%
+% \begin{description}
+%   \item[\meta{jobname}.outline.json] the question regions and the name and
+%     ID regions, as percentages of the page;
+%   \item[\meta{jobname}.rubric.json] a rubric for every question: made from
+%     the correct choices for multiple-choice and check-all-that-apply
+%     questions, and written in the source (see section~\ref{sec:rubrics}) for
+%     free-response ones;
+%   \item[\meta{jobname}.key.csv] the answer key of the questions answered on
+%     a bubble sheet;
+%   \item[\meta{jobname}.json] a manifest of all the questions: number, a
+%     name that is the same on every version, points, type and answer.
+% \end{description}
+% All of them are made from the same run as the PDF. In particular the answer
+% key and rubrics come from the blank exam, after any shuffling of choices,
+% not from a separate solutions run.
+%
+% Gradescope has no public interface for uploading outlines and rubrics. The
+% command \texttt{edubag gradescope client setup-exam} of the Python package
+% \textsf{edubag} (\url{https://github.com/nyumathclinic/python-edubag}) reads
+% these files and sets up a multi-version exam on Gradescope; the
+% \texttt{gradescope-tampermonkey} rubric importer
+% (\url{https://github.com/nyumathclinic/gradescope-tampermonkey}) reads the
+% rubric files in a browser.
+%
+% \section{Requirements}
+%
+% \begin{itemize}
+%   \item \LuaLaTeX{} (the package records positions with Lua at shipout);
+%   \item the \textsf{exam} class, or a class built on it;
+%   \item a \LaTeX{} kernel from 2023 or later.
+% \end{itemize}
+% The package works with \textsf{exam-randomizechoices}, loaded before or after
+% it.
+%
+% \section{Usage}
+%
+% Load the package after the \textsf{exam} class:
+% \begin{verbatim}
+% \documentclass{exam}
+% \usepackage{exam-gradescope}
+% \end{verbatim}
+% Nothing else is needed for multiple-choice questions and for the outline of
+% the questions. The files are written at the end of the run, next to the PDF.
+%
+% \subsection{Where questions go}
+%
+% Each question is \emph{multiple choice} if it has a \env{choices} or
+% \env{oneparchoices} environment with a |\CorrectChoice|,
+% \emph{check all that apply} if it has a \env{checkboxes} or
+% \env{oneparcheckboxes} environment, and \emph{free response} otherwise.
+%
+% Free-response questions are graded on Gradescope. Multiple-choice and
+% check-all-that-apply questions go where the option \option{mc} says:
+% \begin{description}
+%   \item[\texttt{mc=gradescope}] (the default) they are graded on Gradescope
+%     like the others, with rubrics made from their correct choices;
+%   \item[\texttt{mc=bubble}] they are answered on a bubble sheet: they go in
+%     the answer key, and are left out of the outline and rubrics.
+% \end{description}
+% So a quiz graded entirely on Gradescope needs no option, and an exam whose
+% multiple-choice part is on a bubble sheet uses
+% \begin{verbatim}
+% \usepackage[mc=bubble]{exam-gradescope}
+% \end{verbatim}
+% Its outline and rubrics then have only the free-response questions. These are
+% numbered 1, 2, \dots{} on Gradescope, so each is titled after its printed
+% number (``Question 29''). The outline's page numbers are those of the whole
+% PDF, which is the template to upload.
+%
+% \DescribeMacro{\gradescopequestion}
+% |\gradescopequestion{|\meta{keys}|}|, anywhere in a question, changes how
+% that question is treated:
+% \begin{description}
+%   \item[\texttt{type=}\meta{mc, cata or frq}] its type;
+%   \item[\texttt{destination=}\meta{bubble, gradescope or none}] where it is
+%     graded (\texttt{none} leaves it out of everything but the manifest);
+%   \item[\texttt{title=}\meta{text}] its title on Gradescope;
+%   \item[\texttt{id=}\meta{name}] its name in the manifest;
+%   \item[\texttt{points=}\meta{number}] its points, when the document does
+%     not give them to \textsf{exam}.
+% \end{description}
+% In a part, after |\part|, the keys \texttt{title} and \texttt{points} apply
+% to the part. A question whose parts have no points of their own has its
+% points split evenly among them, with a warning.
+%
+% \subsection{Names of questions}
+%
+% The manifest gives each question a name, so that the same question can be
+% found on every version even when the questions are shuffled. The name is
+% the first |\label| in the question:
+% \begin{verbatim}
+% \question[2]\label{binomial-sum} ...
+% \end{verbatim}
+% Labels with an |@| are ignored: \textsf{exam} and
+% \textsf{exam-randomizechoices} make those for their own use. A question with
+% no label is named by its number.
+%
+% \subsection{The name and ID regions}
+%
+% \DescribeMacro{\GradescopeRegion}
+% |\GradescopeRegion{|\meta{name or sid}|}{|\meta{material}|}| typesets
+% \meta{material} in a box and records where it is, as the region of the
+% student's name (\texttt{name}) or ID (\texttt{sid}). Wrap the boxes on the
+% cover page in it:
+% \begin{verbatim}
+% \GradescopeRegion{name}{\fbox{\parbox{3in}{Name:\vspace{2em}}}}\hfill
+% \GradescopeRegion{sid}{\fbox{\parbox{2in}{ID:\vspace{2em}}}}
+% \end{verbatim}
+%
+% \subsection{Rubrics}\label{sec:rubrics}
+%
+% A multiple-choice question gets the rubric
+% \begin{quote}
+%   \begin{tabular}{rl}
+%     \meta{points} & Correct \\
+%     0 & The correct response is \textbf{B}
+%   \end{tabular}
+% \end{quote}
+% with positive scoring. A check-all-that-apply question with five choices gets
+% negative scoring and the items
+% \begin{quote}
+%   \begin{tabular}{rl}
+%     \meta{points}/5 & A \textbf{should} be selected \\
+%     \meta{points}/5 & B \textbf{should not} be selected \\
+%     \multicolumn{2}{c}{\dots} \\
+%     0 & Correct
+%   \end{tabular}
+% \end{quote}
+% Every rubric has a floor and a ceiling, so a score stays between 0 and the
+% question's points.
+%
+% \DescribeEnv{rubric}
+% A free-response question's rubric is written in a \env{rubric} environment
+% inside the question (or part):
+% \begin{verbatim}
+% \begin{question}[6]\label{comb-proof}
+%   Give a combinatorial proof that ...
+%   \begin{rubric}[scoring=positive]
+%     \begin{rubricgroup}[select one]{What is counted}
+%       \item[2] Clearly identifies the collection being counted
+%       \item[1] Identifies a collection, but vaguely
+%       \item[0] No collection identified
+%     \end{rubricgroup}
+%     \item[0] No response, or no creditable work shown
+%   \end{rubric}
+% \end{question}
+% \end{verbatim}
+% Each |\item[|\meta{points}|]| is a rubric item; a \env{rubricgroup} is a
+% group of items, which with \texttt{select one} are mutually exclusive. The
+% options of \env{rubric} are \texttt{scoring=positive} or
+% \texttt{scoring=negative}, \texttt{floor=}\meta{true or false} and
+% \texttt{ceiling=}\meta{true or false}; the defaults are positive, true and
+% true.
+%
+% The descriptions are read as written, not typeset: they go to Gradescope,
+% whose rubrics use Markdown with \TeX{} math. Math in |\(...\)|, |\[...\]| or
+% |$...$| becomes |$$...$$|, |\textbf{...}| becomes |**...**|, and
+% |\emph{...}| and |\textit{...}| become |*...*|. Other commands are left
+% alone, so keep to ones that MathJax knows inside math.
+%
+% \DescribeMacro{\DeclareRubric}
+% \DescribeMacro{\userubric}
+% Many questions share a rubric. |\DeclareRubric[|\meta{options}|]{|^^A
+% \meta{name}|}{|\meta{items}|}| declares one, in the preamble, with points as
+% fractions of the question's points:
+% \begin{verbatim}
+% \DeclareRubric{basic}{
+%   \item[1]   Correct
+%   \item[5/6] Mostly correct, but small mistakes
+%   \item[2/3] Major mistakes
+%   \item[1/3] Nice try
+%   \item[0]   No response, or no creditable work shown}
+% \end{verbatim}
+% and |\userubric{|\meta{name}|}| in a question uses it, scaled to the
+% question's points. An optional argument changes it for that question:
+% \begin{verbatim}
+% \question[3] ...
+% \userubric{basic}[
+%   \reword{Correct}{Correct, and explained}
+%   \add[before=Major mistakes]{2}{Correct, but not explained}
+%   \remove{Nice try}]
+% \end{verbatim}
+% |\reword{|\meta{old}|}{|\meta{new}|}| rewords the item (or group) whose
+% description starts with \meta{old}; |\add[before=|\meta{item}|]| or
+% |\add[after=|\meta{item}|]{|\meta{points}|}{|\meta{text}|}| adds an item
+% (at the end without an option), worth \meta{points} points, not a fraction;
+% |\remove{|\meta{item}|}| removes one.
+%
+% With the option \texttt{default rubric=}\meta{name}, every free-response
+% question (or part) without a rubric of its own gets that one.
+%
+% \subsection{Options}
+%
+% Options are given when loading the package or, except for \option{debugregions},
+% \DescribeMacro{\gradescopesetup} with |\gradescopesetup{|\meta{keys}|}|.
+% \begin{description}
+%   \item[\texttt{mc=}\meta{gradescope or bubble}] where multiple-choice and
+%     check-all-that-apply questions are graded (default \texttt{gradescope});
+%   \item[\texttt{showrubric}] print each rubric under its question when the
+%     \textsf{exam} class shows answers (with its \texttt{answers} option), for
+%     the graders' copy;
+%   \item[\texttt{default rubric=}\meta{name}] the rubric of free-response
+%     questions that have none;
+%   \item[\texttt{margin=}\meta{length}] how far question regions extend left
+%     and right of the text area (default 18pt);
+%   \item[\texttt{outline}, \texttt{rubric}, \texttt{key}, \texttt{manifest}]
+%     \texttt{=false} to not write that file;
+%   \item[\texttt{debugregions}] draw the regions of the previous run on each
+%     page, to check them. (Regions are known only once the whole document has
+%     been typeset, so this shows the last run's.)
+% \end{description}
+%
+% \section{How regions are found}
+%
+% A question's region starts where the question starts and runs to where the
+% next one starts, across pages if need be, within the text area widened by
+% \option{margin}. The last question runs to the foot of its page, where the
+% space for its answer is. A part's region runs to the next part, or to the
+% end of the question. Slivers shorter than 12pt, left when a question starts
+% at the very foot of a page, are dropped.
+%
+% Each start is recorded with |\latelua|, which gives the exact position on the
+% page when the page is shipped out; so the files are right after a single
+% run, whatever happens to the page breaks.
+%
+% \section{The files}
+%
+% The outline is the body Gradescope's outline editor sends to its server:
+% \begin{verbatim}
+% {"identification_regions": {
+%    "name": {"page_number": 1, "x1": 11.8, "x2": 48.9, "y1": 18.4, "y2": 25.1},
+%    "sid":  {"page_number": 1, "x1": 49.2, "x2": 86.4, "y1": 18.4, "y2": 25.1}},
+%  "question_data": [
+%    {"title": "", "weight": 2,
+%     "crop_rect_list": [{"page_number": 1, "x1": 8.8, "x2": 91.2,
+%                         "y1": 37.8, "y2": 49.1}]},
+%    {"title": "", "children": [{"title": "(a)", "weight": 3, ...}, ...]}]}
+% \end{verbatim}
+% Coordinates are percentages of the page from its top left corner.
+%
+% The rubric file is in the format of the \texttt{gradescope-tampermonkey}
+% importer: |{"questions": [{"question": "1", "scoring_type": ..., "floor": ...,|
+% |"ceiling": ..., "rubric_items": [...], "rubric_item_groups": [...]}]}|,
+% where \texttt{question} is the question's number on Gradescope (|"2.1"| for
+% the first part of the second question).
+%
+% The answer key has a header line |Question,Answers,Points,Type| and a line
+% such as |3,B,2.0,Exact| for each bubble-sheet question.
+%
+% The manifest is |{"items": [...]}| with, for each question, its
+% \texttt{number}, \texttt{id}, \texttt{points}, \texttt{type} (\texttt{mc},
+% \texttt{cata} or \texttt{frq}), \texttt{destination}, \texttt{answer} (the
+% correct letters, if any) and \texttt{parts} (a list of |{"points": ...}|).
+%
+% \section{Limitations}
+%
+% \begin{itemize}
+%   \item Subparts are not regions of their own; their points count towards
+%     their part.
+%   \item The text area is taken from the page layout at the start of the
+%     document. Pages with a different layout (\textsf{exam}'s |\extrawidth|,
+%     say) get regions that may be a little narrow.
+%   \item Rubric descriptions are converted to Markdown by a few simple rules
+%     (above); anything else is passed on as written.
+%   \item The bubble-sheet answer key is for multiple-choice questions: a
+%     check-all-that-apply question there is written with all its correct
+%     letters.
+% \end{itemize}
+%
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+% \subsection{The package}
+%
+%    \begin{macrocode}
+%<*package>
+\ifdefined\directlua\else
+  \PackageError{exam-gradescope}{This package needs LuaLaTeX}{Compile with lualatex.}
+  \expandafter\endinput
+\fi
+\ifdefined\questions\else
+  \PackageError{exam-gradescope}{This package needs the exam class}{Use \string\documentclass{exam}, or a class built on it.}
+  \expandafter\endinput
+\fi
+
+\RequirePackage{etoolbox}
+\directlua{examgradescope = require("exam-gradescope")}
+%</package>
+%    \end{macrocode}
+%
+% \subsubsection{Options}
+%
+%    \begin{macrocode}
+%<*package>
+\newif\ifeg@debug
+\newif\ifeg@show
+\newif\ifeg@outline \eg@outlinetrue
+\newif\ifeg@rubric \eg@rubrictrue
+\newif\ifeg@key \eg@keytrue
+\newif\ifeg@manifest \eg@manifesttrue
+\newcommand\eg@option[2]{\directlua{examgradescope.options["#1"] = #2}}
+\DeclareKeys[examgradescope]{
+  mc.code = \ifstrequal{#1}{bubble}{\eg@option{mc}{"bubble"}}{%
+    \ifstrequal{#1}{gradescope}{\eg@option{mc}{"gradescope"}}{%
+      \PackageError{exam-gradescope}{mc should be bubble or gradescope, not '#1'}{}}},
+  debugregions.if = eg@debug,
+  debugregions.usage = load,
+  showrubric.if = eg@show,
+  margin.code = \eg@option{margin}{\number\dimexpr#1\relax},
+  default~rubric.code = \eg@option{default_rubric}{"\luaescapestring{#1}"},
+  outline.if = eg@outline,
+  rubric.if = eg@rubric,
+  key.if = eg@key,
+  manifest.if = eg@manifest,
+}
+\ProcessKeyOptions[examgradescope]
+\NewDocumentCommand\gradescopesetup{m}{\SetKeys[examgradescope]{#1}}
+%</package>
+%    \end{macrocode}
+%
+% \subsubsection{Questions and parts}
+%
+% A position mark, resolved at shipout. |\latelua| expands its argument then, so the arguments are expanded now.
+%
+%    \begin{macrocode}
+%<*package>
+\newcommand\eg@mark[2]{%
+  \expanded{\noexpand\latelua{examgradescope.mark("#1", #2)}}}
+
+\newcount\eg@index
+\newcount\eg@part
+%</package>
+%    \end{macrocode}
+%
+% exam defines |\process@question| and |\process@part| inside the questions and parts environments, so they are patched as those begin.
+%
+%    \begin{macrocode}
+%<*package>
+\apptocmd\questions{%
+  \pretocmd\process@question{%
+    \ifhmode\par\fi
+    \global\eg@index=\directlua{tex.sprint(examgradescope.start_question(\the\numexpr\value{question}+1\relax))}\relax
+    \eg@mark{question}{\the\eg@index}%
+  }{}{\PackageError{exam-gradescope}{Could not patch exam's \string\process@question}{}}%
+}{}{\PackageError{exam-gradescope}{Could not patch the questions environment}{}}
+\AddToHook{env/questions/end}{\ifhmode\par\fi\eg@mark{end}{0}}
+
+\apptocmd\parts{%
+  \pretocmd\process@part{%
+    \ifhmode\par\fi
+    \global\eg@part=\directlua{tex.sprint(examgradescope.start_part(\the\numexpr\value{partno}+1\relax))}\relax
+    \eg@mark{part}{\the\eg@index, \the\eg@part}%
+  }{}{\PackageError{exam-gradescope}{Could not patch exam's \string\process@part}{}}%
+}{}{\PackageError{exam-gradescope}{Could not patch the parts environment}{}}
+%</package>
+%    \end{macrocode}
+%
+% |\@readpoints|[pts] runs for questions, parts and subparts. Points may be macros, or use exam's |\half|.
+%
+%    \begin{macrocode}
+%<*package>
+\pretocmd\@readpoints{%
+  \begingroup
+    \def\half{.5}%
+    \protected@edef\eg@points{#1}%
+    \directlua{examgradescope.points("\luaescapestring{\@queslevel}",
+      "\luaescapestring{\expandafter\detokenize\expandafter{\eg@points}}")}%
+  \endgroup
+}{}{\PackageError{exam-gradescope}{Could not patch exam's \string\@readpoints}{}}
+%</package>
+%    \end{macrocode}
+%
+% The first |\label| in a question names it.
+%
+%    \begin{macrocode}
+%<*package>
+\AddToHookWithArguments{label}{%
+  \protected@edef\eg@label{#1}%
+  \directlua{examgradescope.label("\luaescapestring{\expandafter\detokenize\expandafter{\eg@label}}")}}
+%</package>
+%    \end{macrocode}
+%
+% Choices: after each environment defines |\choice| and |\CorrectChoice|, wrap them to count the choices (checkboxes have no counter) and note the correct ones.
+%
+%    \begin{macrocode}
+%<*package>
+\newcommand\eg@wrapchoices[1]{%
+  \directlua{examgradescope.choices("#1")}%
+  \let\eg@choice\choice
+  \let\eg@CorrectChoice\CorrectChoice
+  \def\choice{\directlua{examgradescope.choice(false)}\eg@choice}%
+  \def\CorrectChoice{\directlua{examgradescope.choice(true)}\eg@CorrectChoice}%
+  \let\correctchoice\CorrectChoice
+}
+%</package>
+%    \end{macrocode}
+%
+% exam's own environments are patched. With its overload option, exam-randomizechoices replaces them by environments (taking an optional argument) that call the originals, saved as |\erc@old<name>|; if it was loaded first, those originals are the ones to patch.
+%
+%    \begin{macrocode}
+%<*package>
+\newcommand\eg@patchchoices[2]{%
+  \ifcsdef{erc@old#1}%
+    {\expandafter\apptocmd\csname erc@old#1\endcsname{\eg@wrapchoices{#2}}{}{\eg@patchfailed{#1}}}%
+    {\expandafter\apptocmd\csname #1\endcsname{\eg@wrapchoices{#2}}{}{\eg@patchfailed{#1}}}}
+\newcommand\eg@patchfailed[1]{%
+  \PackageError{exam-gradescope}{Could not patch the #1 environment}{}}
+\eg@patchchoices{choices}{mc}
+\eg@patchchoices{oneparchoices}{mc}
+\eg@patchchoices{checkboxes}{cata}
+\eg@patchchoices{oneparcheckboxes}{cata}
+
+\NewDocumentCommand\gradescopequestion{m}{%
+  \directlua{examgradescope.question_options("\luaescapestring{\detokenize{#1}}")}}
+%</package>
+%    \end{macrocode}
+%
+% \subsubsection{Name and ID regions}
+%
+%    \begin{macrocode}
+%<*package>
+\NewDocumentCommand\GradescopeRegion{m +m}{%
+  \leavevmode
+  \setbox\z@=\hbox{#2}%
+  \expanded{\noexpand\latelua{examgradescope.region("#1", \number\wd\z@, \number\ht\z@, \number\dp\z@)}}%
+  \box\z@
+}
+%</package>
+%    \end{macrocode}
+%
+% \subsubsection{Rubrics}
+%
+% A rubric's source is read as text: descriptions go to Gradescope as written, with math as |$$...$$| and |\textbf| as |**...**|.
+%
+%    \begin{macrocode}
+%<*package>
+\NewDocumentEnvironment{rubric}{O{} +b}{%
+  \directlua{examgradescope.rubric("\luaescapestring{\detokenize{#1}}", "\luaescapestring{\detokenize{#2}}")}%
+  \eg@showrubric
+}{}
+
+\NewDocumentCommand\DeclareRubric{O{} m +m}{%
+  \directlua{examgradescope.declare_rubric("\luaescapestring{#2}", "\luaescapestring{\detokenize{#1}}",
+    "\luaescapestring{\detokenize{#3}}")}}
+
+\NewDocumentCommand\userubric{m +O{}}{%
+  \directlua{examgradescope.use_rubric("\luaescapestring{#1}", "\luaescapestring{\detokenize{#2}}")}%
+  \eg@showrubric
+}
+%</package>
+%    \end{macrocode}
+%
+% showrubric: print the rubric when answers are shown.
+%
+%    \begin{macrocode}
+%<*package>
+\newcommand\eg@showrubric{%
+  \ifeg@show\ifprintanswers
+    \par\directlua{examgradescope.show_rubric()}%
+  \fi\fi}
+\newenvironment{examgradescoperubric}[1]{%
+  \list{}{\small
+    \def\makelabel##1{\hss\llap{\sffamily##1}}%
+    \setlength\itemsep{0pt}\setlength\parsep{0pt}\setlength\topsep{2pt}}%
+  \ifx\relax#1\relax\else\item[]\textsf{Rubric (#1 scoring)}\fi
+}{\endlist}
+\newcommand\examgradescopegroup[2]{%
+  \textsf{#1}\ifx\relax#2\relax\else\ (\textit{#2})\fi}
+%</package>
+%    \end{macrocode}
+%
+% \subsubsection{Page layout, files and debugregions}
+%
+%    \begin{macrocode}
+%<*package>
+\AtBeginDocument{%
+  \directlua{examgradescope.set_layout(
+    \number\dimexpr 1in + \hoffset + \oddsidemargin\relax,
+    \number\dimexpr 1in + \voffset + \topmargin + \headheight + \headsep\relax,
+    \number\textwidth, \number\textheight)}%
+}
+
+\AtEndDocument{%
+  \directlua{
+    examgradescope.options.outline = \ifeg@outline true\else false\fi;
+    examgradescope.options.rubric = \ifeg@rubric true\else false\fi;
+    examgradescope.options.key = \ifeg@key true\else false\fi;
+    examgradescope.options.manifest = \ifeg@manifest true\else false\fi;
+  }%
+}
+\directlua{
+  luatexbase.add_to_callback("stop_run", function() examgradescope.write_files(tex.jobname) end,
+    "examgradescope")
+}
+
+\newcommand\examgradescopebox[3]{%
+  \color{red}\setlength\fboxsep{0pt}\setlength\fboxrule{0.8pt}%
+  \fbox{\parbox[b][#2][t]{#1}{\hfill\colorbox{red}{\color{white}\tiny\ttfamily #3}}}}
+\ifeg@debug
+  \RequirePackage{xcolor}
+  \directlua{examgradescope.load_previous(tex.jobname)}
+  \AddToHook{shipout/foreground}{%
+    \directlua{examgradescope.draw_page(status.total_pages + 1, tex.pagewidth, tex.pageheight)}}
+\fi
+%</package>
+%    \end{macrocode}
+%
+% \subsection{The Lua module}
+%
+% The package's work is done in Lua: recording questions as \TeX{} reads
+% them, positions as pages are shipped out, and the files at the end of the
+% run.
+%
+%    \begin{macrocode}
+%<*lua>
+-- exam-gradescope.lua: record the questions of an exam-class document and
+-- write files for Gradescope: an outline, rubrics, a bubble-sheet answer key
+-- and an item manifest.
+
+local eg = {}
+
+eg.questions = {}      -- in document order
+eg.current = nil       -- the question being read
+eg.part = nil          -- the part being read, if any
+eg.marks = {}          -- position marks, filled in at shipout
+eg.regions = {}        -- identification regions: name, sid
+eg.layout = {}         -- text area, in sp from the top left of the page
+eg.presets = {}        -- \DeclareRubric
+eg.options = {
+  mc = "gradescope",               -- where MC and CATA questions go: "gradescope" or "bubble"
+  margin = 18 * 65536,             -- added left and right of the text area
+  min_height = 12 * 65536,         -- shorter rectangles are dropped
+  default_rubric = "",             -- preset for free-response questions with no rubric
+  outline = true, rubric = true, key = true, manifest = true,
+}
+
+local function warn(message)
+  texio.write_nl("term and log", "Package exam-gradescope Warning: " .. message)
+  texio.write_nl("term and log", "")
+end
+
+local function trim(s)
+  return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+end
+
+-- ---------------------------------------------------------------------------
+-- Recording, while TeX reads the document
+-- ---------------------------------------------------------------------------
+
+function eg.start_question(number)
+  local q = {number = number, points = 0, parts = {}, correct = {}, choices = 0}
+  eg.questions[#eg.questions + 1] = q
+  eg.current = q
+  eg.part = nil
+  return #eg.questions
+end
+
+function eg.start_part(number)
+  local q = eg.current
+  if not q then return 0 end
+  local p = {number = number, points = 0}
+  q.parts[#q.parts + 1] = p
+  eg.part = p
+  return #q.parts
+end
+
+-- The question, or the part of it, being read.
+local function target()
+  return eg.part or eg.current
+end
+
+-- Points given as \question[pts] or \part[pts]; subparts add to their part.
+function eg.points(level, value)
+  local n = tonumber(value)
+  if not eg.current then return end
+  if not n then
+    warn("could not read points '" .. value .. "' of question " .. eg.current.number)
+    return
+  end
+  if level == "question" or not eg.part then
+    eg.current.points = eg.current.points + n
+  else
+    eg.part.points = eg.part.points + n
+  end
+end
+
+-- The first \label in a question names it. Labels with an @ are internal:
+-- exam's own (question@3, firstpoints@onpage@1) and exam-randomizechoices'.
+function eg.label(name)
+  local q = eg.current
+  if not q or q.id ~= nil then return end
+  if name:find("@", 1, true) then return end
+  q.id = name
+end
+
+-- kind: "mc" or "cata", from the choices environment.
+function eg.choices(kind)
+  local q = eg.current
+  if q then q.kind = q.kind or kind end
+end
+
+-- Choices are lettered A, B, ... in the order they are typeset, which is
+-- after any shuffling.
+function eg.choice(correct)
+  local q = eg.current
+  if not q then return end
+  q.choices = q.choices + 1
+  if correct then q.correct[#q.correct + 1] = string.char(64 + q.choices) end
+end
+
+-- \gradescopequestion{type=..., destination=..., title=..., id=..., points=...}
+-- In a part, title and points apply to the part.
+function eg.question_options(text)
+  local q = eg.current
+  if not q then return end
+  for key, value in pairs(eg.keyvals(text)) do
+    if eg.part and (key == "title" or key == "points") then
+      if key == "points" then
+        eg.part.points_override = tonumber(value)
+        if not eg.part.points_override then warn("points should be a number, not '" .. value .. "'") end
+      else
+        eg.part.title = value
+      end
+      goto continue
+    end
+    if key == "type" then
+      if value ~= "mc" and value ~= "cata" and value ~= "frq" then
+        warn("type should be mc, cata or frq, not '" .. value .. "'")
+      else
+        q.kind_override = value
+      end
+    elseif key == "destination" then
+      if value ~= "bubble" and value ~= "gradescope" and value ~= "none" then
+        warn("destination should be bubble, gradescope or none, not '" .. value .. "'")
+      else
+        q.destination = value
+      end
+    elseif key == "title" or key == "id" then
+      q[key] = value
+    elseif key == "points" then
+      q.points_override = tonumber(value)
+      if not q.points_override then warn("points should be a number, not '" .. value .. "'") end
+    else
+      warn("unknown key '" .. key .. "' in \\gradescopequestion")
+    end
+    ::continue::
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Positions, at shipout
+-- ---------------------------------------------------------------------------
+
+local function page_number()
+  return status.total_pages + 1
+end
+
+-- From \latelua: kind is "question", "part" or "end".
+function eg.mark(kind, index, part)
+  local h, v = pdf.getpos()
+  eg.marks[#eg.marks + 1] = {
+    kind = kind, index = index, part = part,
+    page = page_number(), h = h, y = tex.pageheight - v,
+    width = tex.pagewidth, height = tex.pageheight,
+  }
+end
+
+-- From \latelua before an \hbox of the given size.
+function eg.region(name, wd, ht, dp)
+  local h, v = pdf.getpos()
+  eg.regions[name] = {
+    page = page_number(), x1 = h, x2 = h + wd,
+    y1 = tex.pageheight - v - ht, y2 = tex.pageheight - v + dp,
+    width = tex.pagewidth, height = tex.pageheight,
+  }
+end
+
+function eg.set_layout(left, top, width, height)
+  eg.layout = {left = left, top = top, width = width, height = height}
+end
+
+-- ---------------------------------------------------------------------------
+-- Small parsers for the LaTeX interface
+-- ---------------------------------------------------------------------------
+
+-- The balanced {...} or [...] group starting at position i (which must hold
+-- the opening delimiter). Returns its contents and the position after it.
+local function group(s, i, open, close)
+  open, close = open or "{", close or "}"
+  if s:sub(i, i) ~= open then return nil, i end
+  local depth = 0
+  for j = i, #s do
+    local c = s:sub(j, j)
+    if c == "\\" then
+      -- skip an escaped character
+    elseif c == open and s:sub(j - 1, j - 1) ~= "\\" then
+      depth = depth + 1
+    elseif c == close and s:sub(j - 1, j - 1) ~= "\\" then
+      depth = depth - 1
+      if depth == 0 then return s:sub(i + 1, j - 1), j + 1 end
+    end
+  end
+  return nil, i
+end
+
+local function skip_space(s, i)
+  return s:find("[^%s]", i) or #s + 1
+end
+
+-- "a=1, b, c = {x, y}" -> {a = "1", b = "true", c = "x, y"}
+function eg.keyvals(text)
+  local out = {}
+  local i = 1
+  while i <= #text do
+    i = skip_space(text, i)
+    local key_end = text:find("[=,]", i) or #text + 1
+    local key = trim(text:sub(i, key_end - 1))
+    local value = "true"
+    i = key_end
+    if text:sub(i, i) == "=" then
+      i = skip_space(text, i + 1)
+      if text:sub(i, i) == "{" then
+        value, i = group(text, i)
+        i = text:find(",", i) or #text + 1
+      else
+        local value_end = text:find(",", i) or #text + 1
+        value = trim(text:sub(i, value_end - 1))
+        i = value_end
+      end
+    end
+    if key ~= "" then out[key] = value end
+    i = i + 1
+  end
+  return out
+end
+
+local function weight_of(text, where)
+  local a, b = text:match("^%s*([%d.]+)%s*/%s*([%d.]+)%s*$")
+  local w = a and tonumber(a) / tonumber(b) or tonumber(trim(text))
+  if not w then warn("could not read the weight '" .. text .. "'" .. (where or "")) end
+  return w or 0
+end
+
+-- Detokenized LaTeX, tidied: one space between words, and no space after a
+-- control word (which \detokenize adds) unless a letter follows.
+function eg.source(text)
+  local s = trim(text:gsub("%s+", " "))
+  return (s:gsub("(\\%a+) ([^%a])", "%1%2"))
+end
+
+-- LaTeX source of a rubric description, as Gradescope's Markdown: math in
+-- $$...$$, \textbf in **...**, \emph and \textit in *...*.
+function eg.markdown(text)
+  local s = eg.source(text)
+  s = s:gsub("\\%( ?", "$$"):gsub(" ?\\%)", "$$")
+  s = s:gsub("\\%[ ?", "$$"):gsub(" ?\\%]", "$$")
+  -- single $...$ (but not $$...$$) becomes $$...$$
+  s = s:gsub("%$%$", "\1"):gsub("%$([^%$\1]-)%$", "\1%1\1"):gsub("\1", "$$")
+  local function wrap(command, mark)
+    s = s:gsub("\\" .. command .. " ?(%b{})", function(g) return mark .. g:sub(2, -2) .. mark end)
+  end
+  wrap("textbf", "**")
+  wrap("emph", "*")
+  wrap("textit", "*")
+  s = s:gsub("\\%%", "%%"):gsub("\\&", "&"):gsub("\\#", "#"):gsub("\\_", "_")
+  s = s:gsub("~", " "):gsub("\\ldots ?", "…"):gsub("\\dots ?", "…")
+  s = s:gsub("``", "“"):gsub("''", "”")
+  return trim(s)
+end
+
+-- The body of a rubric environment or preset: \item[weight] text, and
+-- \begin{rubricgroup}[select one]{description} ... \end{rubricgroup}.
+-- Returns a list of entries {item = {description, weight}} or
+-- {group = {description, mutually_exclusive, items}}.
+function eg.parse_rubric_body(body)
+  local entries = {}
+  local list = entries        -- where items go: the rubric, or a group's items
+  local group_entry = nil
+  local i = 1
+  local pending = nil         -- the item whose text is being read
+  local function finish(upto)
+    if pending then
+      pending.source = eg.source(body:sub(pending.from, upto - 1))
+      pending.description = eg.markdown(pending.source)
+      pending.from = nil
+      if pending.description == "" then warn("a rubric item has no description") end
+      pending = nil
+    end
+  end
+  while true do
+    local a = body:find("\\item", i, true)
+    local b = body:find("\\begin ?{rubricgroup}", i)
+    local c = body:find("\\end ?{rubricgroup}", i)
+    local nxt = math.min(a or math.huge, b or math.huge, c or math.huge)
+    if nxt == math.huge then
+      finish(#body + 1)
+      break
+    end
+    finish(nxt)
+    if nxt == a then
+      local j = skip_space(body, a + 5)
+      local w = "0"
+      if body:sub(j, j) == "[" then
+        w, j = group(body, j, "[", "]")
+      else
+        warn("a rubric item has no [weight]; using 0")
+      end
+      pending = {weight = weight_of(w or "0", " in a rubric item"), from = j}
+      list[#list + 1] = pending
+    elseif nxt == b then
+      local j = body:find("}", b) + 1
+      j = skip_space(body, j)
+      local options = ""
+      if body:sub(j, j) == "[" then options, j = group(body, j, "[", "]") end
+      j = skip_space(body, j)
+      local description
+      description, j = group(body, j)
+      local opts = eg.keyvals(options or "")
+      group_entry = {
+        source = eg.source(description or ""),
+        description = eg.markdown(description or ""),
+        mutually_exclusive = opts["select one"] ~= nil,
+        items = {},
+      }
+      entries[#entries + 1] = {group = group_entry}
+      list = group_entry.items
+      i = j
+    else
+      list = entries
+      group_entry = nil
+      i = body:find("}", c) + 1
+    end
+    if nxt == a then i = pending.from end
+  end
+  -- Items of the top level were collected as bare tables; wrap them.
+  for k, entry in ipairs(entries) do
+    if not entry.group then entries[k] = {item = entry} end
+  end
+  return entries
+end
+
+-- A preset's entries, with weights scaled and rounded to hundredths.
+local function scaled(entries, factor)
+  local out = {}
+  local function weight(w) return math.floor(w * factor * 100 + 0.5) / 100 end
+  local function item(it) return {description = it.description, source = it.source, weight = weight(it.weight)} end
+  for _, e in ipairs(entries) do
+    if e.item then
+      out[#out + 1] = {item = item(e.item)}
+    else
+      local items = {}
+      for _, it in ipairs(e.group.items) do items[#items + 1] = item(it) end
+      out[#out + 1] = {group = {description = e.group.description, source = e.group.source,
+                                mutually_exclusive = e.group.mutually_exclusive, items = items}}
+    end
+  end
+  return out
+end
+
+local function settings_of(text)
+  local opts = eg.keyvals(text or "")
+  local settings = {scoring_type = "positive", floor = true, ceiling = true}
+  if opts.scoring then settings.scoring_type = opts.scoring end
+  if opts.floor then settings.floor = opts.floor ~= "false" end
+  if opts.ceiling then settings.ceiling = opts.ceiling ~= "false" end
+  return settings
+end
+
+-- \begin{rubric}[options] body \end{rubric}
+function eg.rubric(options, body)
+  local t = target()
+  if not t then
+    warn("a rubric outside any question is ignored")
+    return
+  end
+  t.rubric = {settings = settings_of(options), entries = eg.parse_rubric_body(body)}
+end
+
+-- \DeclareRubric[options]{name}{body}; weights are fractions of the points.
+function eg.declare_rubric(name, options, body)
+  eg.presets[name] = {settings = settings_of(options), entries = eg.parse_rubric_body(body)}
+end
+
+-- Find an entry by the start of its description (ignoring case).
+local function find_entry(entries, text)
+  local want = eg.markdown(text):lower()
+  for k, e in ipairs(entries) do
+    local d = (e.item or e.group).description:lower()
+    if d:sub(1, #want) == want then return k end
+  end
+  warn("no rubric item starts with '" .. text .. "'")
+end
+
+-- \reword{match}{new}, \add[before=match|after=match]{weight}{text}, \remove{match}
+local function apply_edits(entries, edits)
+  local i = 1
+  while true do
+    local s, e, command = edits:find("\\(%a+)", i)
+    if not s then break end
+    local j = skip_space(edits, e + 1)
+    if command == "reword" then
+      local match, new
+      match, j = group(edits, j); j = skip_space(edits, j)
+      new, j = group(edits, j)
+      local k = match and find_entry(entries, match)
+      if k and new then
+        local e = entries[k].item or entries[k].group
+        e.description, e.source = eg.markdown(new), eg.source(new)
+      end
+    elseif command == "remove" then
+      local match
+      match, j = group(edits, j)
+      local k = match and find_entry(entries, match)
+      if k then table.remove(entries, k) end
+    elseif command == "add" then
+      local options = ""
+      if edits:sub(j, j) == "[" then options, j = group(edits, j, "[", "]"); j = skip_space(edits, j) end
+      local w, text
+      w, j = group(edits, j); j = skip_space(edits, j)
+      text, j = group(edits, j)
+      local opts = eg.keyvals(options or "")
+      local entry = {item = {description = eg.markdown(text or ""), source = eg.source(text or ""),
+                             weight = weight_of(w or "0", " in \\add")}}
+      local k = #entries + 1
+      if opts.before then
+        k = find_entry(entries, opts.before) or k
+      elseif opts.after then
+        k = (find_entry(entries, opts.after) or #entries) + 1
+      end
+      table.insert(entries, k, entry)
+    else
+      warn("unknown rubric edit \\" .. command)
+    end
+    i = j
+  end
+end
+
+-- \userubric{name}[edits]: the preset scaled to the points of the question
+-- (or part) so far. Returns the rubric, for showing.
+function eg.use_rubric(name, edits)
+  local t = target()
+  local preset = eg.presets[name]
+  if not t then return end
+  if not preset then
+    warn("no rubric named '" .. name .. "'")
+    return
+  end
+  local entries = scaled(preset.entries, t.points_override or t.points)
+  apply_edits(entries, edits or "")
+  t.rubric = {settings = preset.settings, entries = entries}
+end
+
+-- ---------------------------------------------------------------------------
+-- Showing a rubric (showrubric)
+-- ---------------------------------------------------------------------------
+
+local function number_text(x)
+  if x == math.floor(x) then return string.format("%d", x) end
+  return (string.format("%.2f", x):gsub("0+$", ""))
+end
+
+-- The current question's (or part's) rubric, typeset as a list.
+function eg.show_rubric()
+  local t = target()
+  if not t or not t.rubric then return end
+  local function item(it)
+    tex.sprint("\\item[" .. number_text(it.weight) .. "]")
+    tex.sprint(it.source or it.description)
+  end
+  tex.sprint("\\begin{examgradescoperubric}{" .. t.rubric.settings.scoring_type .. "}")
+  for _, e in ipairs(t.rubric.entries) do
+    if e.item then
+      item(e.item)
+    else
+      tex.sprint("\\item[]\\examgradescopegroup{")
+      tex.sprint(e.group.source or e.group.description)
+      tex.sprint("}{" .. (e.group.mutually_exclusive and "select one" or "") .. "}")
+      tex.sprint("\\begin{examgradescoperubric}{}")
+      for _, it in ipairs(e.group.items) do item(it) end
+      tex.sprint("\\end{examgradescoperubric}")
+    end
+  end
+  tex.sprint("\\end{examgradescoperubric}")
+end
+
+-- ---------------------------------------------------------------------------
+-- Regions
+-- ---------------------------------------------------------------------------
+
+local function round(x)
+  return math.floor(x * 10 + 0.5) / 10
+end
+
+-- A rectangle on one page, from y1 to y2 (sp from the top), in percent.
+local function rect(page, y1, y2, width, height)
+  local l = eg.layout
+  local x1 = math.max(0, l.left - eg.options.margin)
+  local x2 = math.min(width, l.left + l.width + eg.options.margin)
+  return {page_number = page, x1 = round(100 * x1 / width), x2 = round(100 * x2 / width),
+          y1 = round(100 * y1 / height), y2 = round(100 * y2 / height)}
+end
+
+-- The rectangles from one mark to the next, one per page. Slivers shorter
+-- than min_height (a mark that fell at the foot of a page) are dropped.
+local function span(from, to)
+  local l = eg.layout
+  local top, bottom = l.top, l.top + l.height
+  local rects = {}
+  local function add(page, y1, y2)
+    if y2 - y1 >= eg.options.min_height then rects[#rects + 1] = rect(page, y1, y2, from.width, from.height) end
+  end
+  if from.page == to.page then
+    add(from.page, from.y, to.y)
+  else
+    add(from.page, from.y, bottom)
+    for page = from.page + 1, to.page - 1 do add(page, top, bottom) end
+    add(to.page, top, to.y)
+  end
+  return rects
+end
+
+-- Each question's (and part's) rectangles run from its mark to the next
+-- question's (or part's) mark. Call it once every page has been shipped out.
+function eg.resolve_regions()
+  local starts = {}   -- question and end marks, in document order
+  for _, m in ipairs(eg.marks) do
+    if m.kind == "question" then
+      eg.questions[m.index].mark = m
+      starts[#starts + 1] = m
+    elseif m.kind == "part" then
+      eg.questions[m.index].parts[m.part].mark = m
+    else
+      starts[#starts + 1] = m
+    end
+  end
+  for i, m in ipairs(starts) do
+    local nxt = starts[i + 1]
+    -- The last question's answer space is the rest of its page, after its
+    -- text, so it runs to the foot of the text area: of the page with the
+    -- end of the questions or, if that mark was never shipped out (it was
+    -- alone on a page), of the page of the question's last mark.
+    if m.kind == "question" and (not nxt or nxt.kind == "end") then
+      local last = m
+      for _, p in ipairs(eg.questions[m.index].parts) do
+        if p.mark and p.mark.page >= last.page then last = p.mark end
+      end
+      local page = nxt and math.max(nxt.page, last.page) or last.page
+      nxt = {page = page, y = eg.layout.top + eg.layout.height, width = m.width, height = m.height}
+    end
+    if m.kind == "question" and nxt then
+      local q = eg.questions[m.index]
+      q.crop_rect_list = span(m, nxt)
+      for j, p in ipairs(q.parts) do
+        if p.mark then
+          local after = q.parts[j + 1] and q.parts[j + 1].mark or nxt
+          p.crop_rect_list = span(p.mark, after)
+        end
+      end
+    end
+  end
+end
+
+-- ---------------------------------------------------------------------------
+-- Questions as Gradescope sees them
+-- ---------------------------------------------------------------------------
+
+local function kind_of(q)
+  return q.kind_override or q.kind or "frq"
+end
+
+local function destination_of(q)
+  if q.destination then return q.destination end
+  if kind_of(q) == "frq" then return "gradescope" end
+  return eg.options.mc
+end
+
+local function questions_to(destination)
+  local out = {}
+  for _, q in ipairs(eg.questions) do
+    if destination_of(q) == destination then out[#out + 1] = q end
+  end
+  return out
+end
+
+-- Points of a part: given by \part[pts] or \gradescopequestion{points=}.
+-- If none of a question's parts has any, the question's points are split
+-- evenly among them.
+local function part_points(q, p)
+  if p.points_override then return p.points_override end
+  for _, other in ipairs(q.parts) do
+    if other.points > 0 or other.points_override then return p.points end
+  end
+  if not q.warned_split and q.points > 0 then
+    warn("the parts of question " .. q.number .. " have no points; splitting its "
+      .. q.points .. " evenly (give each part's points with \\gradescopequestion{points=...})")
+    q.warned_split = true
+  end
+  return q.points / #q.parts
+end
+
+-- A question with parts is worth the sum of its parts.
+local function total_points(q)
+  if q.points_override then return q.points_override end
+  if #q.parts == 0 then return q.points end
+  local sum = 0
+  for _, p in ipairs(q.parts) do sum = sum + part_points(q, p) end
+  return sum
+end
+
+local function part_title(p, k)
+  return p.title or ("(" .. string.char(96 + k) .. ")")
+end
+
+-- When some questions go to the bubble sheet, Gradescope's numbering differs
+-- from the printed one, so the title gives the printed number.
+local function title_of(q)
+  if q.title then return q.title end
+  if #questions_to("bubble") > 0 then return "Question " .. q.number end
+  return ""
+end
+
+-- The rubric for MC and CATA questions, following the usual conventions:
+-- MC: "Correct" for full points and "The correct response is **X**" for 0.
+-- CATA: negative scoring, one item per choice deducting points/choices.
+local function choice_rubric(q)
+  local points = total_points(q)
+  local correct = {}
+  for _, letter in ipairs(q.correct) do correct[letter] = true end
+  local settings = {scoring_type = "positive", floor = true, ceiling = true}
+  if kind_of(q) == "mc" then
+    return {settings = settings, entries = {
+      {item = {description = "Correct", weight = points}},
+      {item = {description = "The correct response is **" .. table.concat(q.correct, "") .. "**", weight = 0}},
+    }}
+  end
+  settings.scoring_type = "negative"
+  local entries = {}
+  local deduction = q.choices > 0 and points / q.choices or 0
+  for k = 1, q.choices do
+    local letter = string.char(64 + k)
+    entries[#entries + 1] = {item = {
+      description = letter .. (correct[letter] and " **should** be selected" or " **should not** be selected"),
+      weight = deduction,
+    }}
+  end
+  entries[#entries + 1] = {item = {description = "Correct", weight = 0}}
+  return {settings = settings, entries = entries}
+end
+
+local function rubric_of(q, t)
+  if t.rubric then return t.rubric end
+  if t == q and kind_of(q) ~= "frq" then return choice_rubric(q) end
+  local preset = eg.presets[eg.options.default_rubric]
+  local points = t == q and total_points(q) or part_points(q, t)
+  if preset then return {settings = preset.settings, entries = scaled(preset.entries, points)} end
+end
+
+-- ---------------------------------------------------------------------------
+-- JSON
+-- ---------------------------------------------------------------------------
+
+-- Objects keep their keys in the order given: obj{"a", 1, "b", 2}.
+local object_mt = {}
+local function obj(list)
+  return setmetatable({pairs = list}, object_mt)
+end
+
+local function number_json(x)
+  if x == math.floor(x) and math.abs(x) < 1e15 then return string.format("%d", x) end
+  return (string.format("%.6f", x):gsub("0+$", ""))
+end
+
+local escapes = {['"'] = '\\"', ['\\'] = '\\\\', ['\n'] = '\\n', ['\t'] = '\\t', ['\r'] = '\\r'}
+local function string_json(s)
+  return '"' .. s:gsub('[%c"\\]', function(c)
+    return escapes[c] or string.format("\\u%04x", c:byte())
+  end) .. '"'
+end
+
+local function to_json(value, indent)
+  indent = indent or ""
+  local inner = indent .. "  "
+  local t = type(value)
+  if t == "string" then return string_json(value) end
+  if t == "number" then return number_json(value) end
+  if t == "boolean" then return tostring(value) end
+  if value == nil then return "null" end
+  local items = {}
+  if getmetatable(value) == object_mt then
+    for i = 1, #value.pairs, 2 do
+      local v = value.pairs[i + 1]
+      if v ~= nil then items[#items + 1] = inner .. string_json(value.pairs[i]) .. ": " .. to_json(v, inner) end
+    end
+    if #items == 0 then return "{}" end
+    return "{\n" .. table.concat(items, ",\n") .. "\n" .. indent .. "}"
+  end
+  for _, v in ipairs(value) do items[#items + 1] = inner .. to_json(v, inner) end
+  if #items == 0 then return "[]" end
+  return "[\n" .. table.concat(items, ",\n") .. "\n" .. indent .. "]"
+end
+eg.to_json = to_json
+
+local function rect_json(r)
+  return obj{"page_number", r.page_number, "x1", r.x1, "x2", r.x2, "y1", r.y1, "y2", r.y2}
+end
+
+local function rects_json(list)
+  local out = {}
+  for _, r in ipairs(list or {}) do out[#out + 1] = rect_json(r) end
+  return out
+end
+
+local function region_json(name)
+  local r = eg.regions[name]
+  if not r then return nil end
+  local function pct(x, total) return round(100 * x / total) end
+  return obj{"page_number", r.page, "x1", pct(r.x1, r.width), "x2", pct(r.x2, r.width),
+             "y1", pct(r.y1, r.height), "y2", pct(r.y2, r.height)}
+end
+
+-- ---------------------------------------------------------------------------
+-- Output files
+-- ---------------------------------------------------------------------------
+
+function eg.outline()
+  local questions = {}
+  for _, q in ipairs(questions_to("gradescope")) do
+    if #q.parts > 0 then
+      local children = {}
+      for _, p in ipairs(q.parts) do
+        children[#children + 1] = obj{"title", part_title(p, #children + 1), "weight", part_points(q, p),
+                                      "crop_rect_list", rects_json(p.crop_rect_list)}
+      end
+      questions[#questions + 1] = obj{"title", title_of(q), "children", children}
+    else
+      questions[#questions + 1] = obj{"title", title_of(q), "weight", total_points(q),
+                                      "crop_rect_list", rects_json(q.crop_rect_list)}
+    end
+  end
+  return obj{"identification_regions", obj{"name", region_json("name"), "sid", region_json("sid")},
+             "question_data", questions}
+end
+
+-- One rubric in the gradescope-tampermonkey importer's format. Positions are
+-- given only when there are both ungrouped items and groups.
+local function rubric_json(number, title, rubric)
+  local has_items, has_groups = false, false
+  for _, e in ipairs(rubric.entries) do
+    if e.item then has_items = true else has_groups = true end
+  end
+  local mixed = has_items and has_groups
+  local items, groups = {}, {}
+  for position, e in ipairs(rubric.entries) do
+    local pos = mixed and position - 1 or nil
+    if e.item then
+      items[#items + 1] = obj{"description", e.item.description, "weight", e.item.weight, "position", pos}
+    else
+      local members = {}
+      for _, it in ipairs(e.group.items) do
+        members[#members + 1] = obj{"description", it.description, "weight", it.weight}
+      end
+      groups[#groups + 1] = obj{"description", e.group.description,
+                                "mutually_exclusive", e.group.mutually_exclusive, "position", pos,
+                                "rubric_items", members}
+    end
+  end
+  local s = rubric.settings
+  return obj{"question", number, "title", title ~= "" and title or nil,
+             "scoring_type", s.scoring_type, "floor", s.floor, "ceiling", s.ceiling,
+             "rubric_items", items, "rubric_item_groups", #groups > 0 and groups or nil}
+end
+
+function eg.rubrics()
+  local out = {}
+  for n, q in ipairs(questions_to("gradescope")) do
+    if #q.parts > 0 then
+      for k, p in ipairs(q.parts) do
+        local r = rubric_of(q, p)
+        if r then out[#out + 1] = rubric_json(n .. "." .. k, part_title(p, k), r) end
+      end
+    else
+      local r = rubric_of(q, q)
+      if r then out[#out + 1] = rubric_json(tostring(n), title_of(q), r) end
+    end
+  end
+  return obj{"questions", out}
+end
+
+-- Like aux_to_csv.lua, points always have a decimal point.
+local function csv_points(x)
+  local s = number_json(x)
+  if not s:find("%.") then s = s .. ".0" end
+  return s
+end
+
+function eg.key_csv()
+  local rows = {"Question,Answers,Points,Type"}
+  for _, q in ipairs(questions_to("bubble")) do
+    rows[#rows + 1] = string.format("%d,%s,%s,Exact", q.number, table.concat(q.correct, ""), csv_points(total_points(q)))
+  end
+  return table.concat(rows, "\n") .. "\n"
+end
+
+function eg.manifest()
+  local items = {}
+  for _, q in ipairs(eg.questions) do
+    local parts = nil
+    if #q.parts > 0 then
+      parts = {}
+      for _, p in ipairs(q.parts) do parts[#parts + 1] = obj{"points", part_points(q, p)} end
+    end
+    items[#items + 1] = obj{"number", q.number, "id", q.id or tostring(q.number), "points", total_points(q),
+                            "type", kind_of(q), "destination", destination_of(q),
+                            "answer", #q.correct > 0 and table.concat(q.correct, "") or nil,
+                            "parts", parts}
+  end
+  return obj{"items", items}
+end
+
+local function write_file(path, text)
+  local f, err = io.open(path, "w")
+  if not f then
+    warn("could not write " .. path .. ": " .. tostring(err))
+    return
+  end
+  f:write(text)
+  f:close()
+  texio.write_nl("term and log", "exam-gradescope: wrote " .. path)
+end
+
+-- ---------------------------------------------------------------------------
+-- debugregions: the previous run's rectangles, drawn on each page
+-- ---------------------------------------------------------------------------
+
+local function write_debug(jobname)
+  local lines = {"return {"}
+  local function add(list, label)
+    for _, r in ipairs(list or {}) do
+      lines[#lines + 1] = string.format("  {%d, %s, %s, %s, %s, %q},", r.page_number, r.x1, r.x2, r.y1, r.y2, label)
+    end
+  end
+  for n, q in ipairs(questions_to("gradescope")) do
+    if #q.parts > 0 then
+      for k, p in ipairs(q.parts) do add(p.crop_rect_list, n .. "." .. k) end
+    else
+      add(q.crop_rect_list, tostring(n))
+    end
+  end
+  for _, name in ipairs({"name", "sid"}) do
+    local r = region_json(name)
+    if r then
+      local v = {}
+      for i = 1, #r.pairs, 2 do v[r.pairs[i]] = r.pairs[i + 1] end
+      add({v}, name)
+    end
+  end
+  lines[#lines + 1] = "}"
+  local f = io.open(jobname .. ".egregions", "w")
+  if f then
+    f:write(table.concat(lines, "\n"), "\n")
+    f:close()
+  end
+end
+
+eg.previous = nil
+function eg.load_previous(jobname)
+  local chunk = loadfile(jobname .. ".egregions")
+  eg.previous = chunk and chunk() or {}
+end
+
+-- picture-mode commands drawing the previous run's rectangles on a page.
+-- In the shipout/foreground hook the origin is the top left of the page and
+-- the unit is 1pt, so a box sits at (x1, -y2) and rises to y1.
+function eg.draw_page(page, width, height)
+  if not eg.previous then return end
+  for _, r in ipairs(eg.previous) do
+    if r[1] == page then
+      local x1, x2 = r[2] * width / 100, r[3] * width / 100
+      local y1, y2 = r[4] * height / 100, r[5] * height / 100
+      tex.sprint(string.format(
+        "\\put(%.2f,%.2f){\\examgradescopebox{%.2fpt}{%.2fpt}{%s}}",
+        x1 / 65536, -y2 / 65536, (x2 - x1) / 65536, (y2 - y1) / 65536, r[6]))
+    end
+  end
+end
+
+function eg.write_files(jobname)
+  eg.resolve_regions()
+  write_debug(jobname)
+  local o = eg.options
+  if o.key and #questions_to("bubble") > 0 then write_file(jobname .. ".key.csv", eg.key_csv()) end
+  if #questions_to("gradescope") > 0 then
+    if o.outline then write_file(jobname .. ".outline.json", to_json(eg.outline()) .. "\n") end
+    local rubrics = eg.rubrics()
+    if o.rubric and #rubrics.pairs[2] > 0 then write_file(jobname .. ".rubric.json", to_json(rubrics) .. "\n") end
+  end
+  if o.manifest and #eg.questions > 0 then write_file(jobname .. ".json", to_json(eg.manifest()) .. "\n") end
+end
+
+return eg
+%</lua>
+%    \end{macrocode}
+%
+% \Finale
+\endinput
