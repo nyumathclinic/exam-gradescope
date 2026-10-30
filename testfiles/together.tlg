@@ -1,0 +1,140 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+{
+  "identification_regions": {},
+  "question_data": [
+    {
+      "title": "",
+      "weight": 10,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 32.9
+        }
+      ]
+    },
+    {
+      "title": "",
+      "children": [
+        {
+          "title": "(a)",
+          "weight": 4,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 35.4,
+              "y2": 46.5
+            }
+          ]
+        },
+        {
+          "title": "(b)",
+          "weight": 6,
+          "crop_rect_list": [
+            {
+              "page_number": 1,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 46.5,
+              "y2": 57.6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 5,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 57.6,
+          "y2": 89.1
+        }
+      ]
+    }
+  ]
+}
+{
+  "questions": [
+    {
+      "question": "1",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct volume",
+          "weight": 7,
+          "position": 1
+        }
+      ],
+      "rubric_item_groups": [
+        {
+          "description": "Sketch",
+          "mutually_exclusive": true,
+          "position": 0,
+          "rubric_items": [
+            {
+              "description": "Correct sketch",
+              "weight": 3
+            },
+            {
+              "description": "No sketch",
+              "weight": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "question": "2.1",
+      "title": "(a)",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct",
+          "weight": 4
+        }
+      ]
+    },
+    {
+      "question": "2.2",
+      "title": "(b)",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct",
+          "weight": 6
+        }
+      ]
+    },
+    {
+      "question": "3",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "First right",
+          "weight": 2
+        },
+        {
+          "description": "Second right",
+          "weight": 3
+        }
+      ]
+    }
+  ]
+}

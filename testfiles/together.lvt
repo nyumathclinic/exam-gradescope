@@ -1,0 +1,40 @@
+\input{regression-test.tex}
+\documentclass{exam}
+\usepackage{exam-gradescope}
+\begin{document}
+\begin{questions}
+\question\label{bead} \gradescopequestion{parts=together}
+A bead.
+\begin{parts}
+  \part[3] Sketch it.
+  \part[7] Find its volume.\vspace{2in}
+\end{parts}
+\begin{rubric}
+  \begin{rubricgroup}[select one]{Sketch}
+    \item[3] Correct sketch
+    \item[0] No sketch
+  \end{rubricgroup}
+  \item[7] Correct volume
+\end{rubric}
+\question[10]\label{split} Two parts, each with a rubric.
+\begin{parts}
+  \part[4] First.\vspace{1in}
+  \begin{rubric}\item[4] Correct\end{rubric}
+  \part[6] Second.\vspace{1in}
+  \begin{rubric}\item[6] Correct\end{rubric}
+\end{parts}
+\question[5]\label{joined} Parts with rubrics, graded together.
+\begin{parts}
+  \part[2] First. \begin{rubric}\item[2] First right\end{rubric}
+  \part[3] Second. \begin{rubric}\item[3] Second right\end{rubric}
+  \gradescopequestion{parts=together}
+\end{parts}
+\end{questions}
+\clearpage
+\START
+\directlua{
+  examgradescope.resolve_regions()
+  texio.write_nl("log", examgradescope.to_json(examgradescope.outline()))
+  texio.write_nl("log", examgradescope.to_json(examgradescope.rubrics()))
+}
+\END

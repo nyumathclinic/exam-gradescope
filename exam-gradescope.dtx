@@ -234,11 +234,31 @@ and the derived files           exam-gradescope.ins,
 %   \item[\texttt{title=}\meta{text}] its title on Gradescope;
 %   \item[\texttt{id=}\meta{name}] its name in the manifest;
 %   \item[\texttt{points=}\meta{number}] its points, when the document does
-%     not give them to \textsf{exam}.
+%     not give them to \textsf{exam};
+%   \item[\texttt{parts=}\meta{separate or together}] whether its parts are
+%     separate questions on Gradescope (the default), each with its own
+%     region and rubric, or graded \emph{together}, as one question with one
+%     region and one rubric, worth the sum of their points.
 % \end{description}
 % In a part, after |\part|, the keys \texttt{title} and \texttt{points} apply
 % to the part. A question whose parts have no points of their own has its
 % points split evenly among them, with a warning.
+%
+% \changes{unreleased}{2026/10/30}{Added the \texttt{parts} key, to grade parts together}
+% With \texttt{parts=together}, put the rubric anywhere in the question, for
+% instance after |\end{parts}|, with a group for each part:
+% \begin{verbatim}
+% \question \gradescopequestion{parts=together}
+% \begin{parts}
+%   \part[3] Sketch ... \part[7] Calculate ...
+% \end{parts}
+% \begin{rubric}
+%   \begin{rubricgroup}[select one]{Sketch} ... \end{rubricgroup}
+%   \begin{rubricgroup}[select one]{Integral} ... \end{rubricgroup}
+% \end{rubric}
+% \end{verbatim}
+% (Rubrics written in the parts are joined, in order, if the question has
+% none of its own.)
 %
 % \subsection{Names of questions}
 %
@@ -531,6 +551,7 @@ and the derived files           exam-gradescope.ins,
     \eg@mark{part}{\the\eg@index, \the\eg@part}%
   }{}{\PackageError{exam-gradescope}{Could not patch exam's \string\process@part}{}}%
 }{}{\PackageError{exam-gradescope}{Could not patch the parts environment}{}}
+\AddToHook{env/parts/end}{\directlua{examgradescope.end_parts()}}
 %</package>
 %    \end{macrocode}
 %
@@ -743,8 +764,15 @@ function eg.start_part(number)
   return #q.parts
 end
 
--- The question, or the part of it, being read.
+-- After \end{parts}, what follows belongs to the question again.
+function eg.end_parts()
+  eg.part = nil
+end
+
+-- The question, or the part of it, being read. The parts of a question
+-- graded together share the question's rubric.
 local function target()
+  if eg.current and eg.current.parts_together then return eg.current end
   return eg.part or eg.current
 end
 
@@ -816,6 +844,12 @@ function eg.question_options(text)
       end
     elseif key == "title" or key == "id" then
       q[key] = value
+    elseif key == "parts" then
+      if value ~= "separate" and value ~= "together" then
+        warn("parts should be separate or together, not '" .. value .. "'")
+      else
+        q.parts_together = value == "together"
+      end
     elseif key == "points" then
       q.points_override = tonumber(value)
       if not q.points_override then warn("points should be a number, not '" .. value .. "'") end
@@ -1247,6 +1281,11 @@ local function kind_of(q)
   return q.kind_override or q.kind or "frq"
 end
 
+-- Whether the question's parts are separate questions on Gradescope.
+local function split(q)
+  return #q.parts > 0 and not q.parts_together
+end
+
 local function destination_of(q)
   if q.destination then return q.destination end
   if kind_of(q) == "frq" then return "gradescope" end
@@ -1326,8 +1365,25 @@ local function choice_rubric(q)
   return {settings = settings, entries = entries}
 end
 
+-- The rubrics of a question whose parts are graded together, one after the
+-- other, if the question has none of its own.
+local function joined_rubric(q)
+  local joined
+  for _, p in ipairs(q.parts) do
+    if p.rubric then
+      joined = joined or {settings = p.rubric.settings, entries = {}}
+      for _, e in ipairs(p.rubric.entries) do joined.entries[#joined.entries + 1] = e end
+    end
+  end
+  return joined
+end
+
 local function rubric_of(q, t)
   if t.rubric then return t.rubric end
+  if t == q and q.parts_together then
+    local joined = joined_rubric(q)
+    if joined then return joined end
+  end
   if t == q and kind_of(q) ~= "frq" then return choice_rubric(q) end
   local preset = eg.presets[eg.options.default_rubric]
   local points = t == q and total_points(q) or part_points(q, t)
@@ -1404,7 +1460,7 @@ end
 function eg.outline()
   local questions = {}
   for _, q in ipairs(questions_to("gradescope")) do
-    if #q.parts > 0 then
+    if split(q) then
       local children = {}
       for _, p in ipairs(q.parts) do
         children[#children + 1] = obj{"title", part_title(p, #children + 1), "weight", part_points(q, p),
@@ -1452,7 +1508,7 @@ end
 function eg.rubrics()
   local out = {}
   for n, q in ipairs(questions_to("gradescope")) do
-    if #q.parts > 0 then
+    if split(q) then
       for k, p in ipairs(q.parts) do
         local r = rubric_of(q, p)
         if r then out[#out + 1] = rubric_json(n .. "." .. k, part_title(p, k), r) end
@@ -1519,7 +1575,7 @@ local function write_debug(jobname)
     end
   end
   for n, q in ipairs(questions_to("gradescope")) do
-    if #q.parts > 0 then
+    if split(q) then
       for k, p in ipairs(q.parts) do add(p.crop_rect_list, n .. "." .. k) end
     else
       add(q.crop_rect_list, tostring(n))
