@@ -367,6 +367,27 @@ and the derived files           exam-gradescope.ins,
 %     been typeset, so this shows the last run's.)
 % \end{description}
 %
+% \subsection{Documents that work without the package}
+%
+% A template shared with people who may not have the package, or who
+% typeset with another engine, can load it only when it is there, and
+% otherwise ignore its commands:
+% \begin{verbatim}
+% \ifluatex
+%   \IfFileExists{exam-gradescope.sty}{\usepackage{exam-gradescope}}{}
+% \fi
+% \IfPackageLoadedF{exam-gradescope}{%
+%   \ProvideDocumentCommand\gradescopesetup{m}{}%
+%   \ProvideDocumentCommand\gradescopequestion{m}{}%
+%   \ProvideDocumentCommand\GradescopeRegion{m +m}{#2}%
+%   \ProvideDocumentEnvironment{rubric}{O{} +b}{}{}%
+%   \ProvideDocumentCommand\DeclareRubric{O{} m +m}{}%
+%   \ProvideDocumentCommand\userubric{m +O{}}{}%
+% }
+% \end{verbatim}
+% A class can mark its name and ID boxes the same way, with
+% |\@ifundefined{GradescopeRegion}{|\meta{box}|}{\GradescopeRegion{name}{|\meta{box}|}}|.
+%
 % \section{How regions are found}
 %
 % A question's region starts where the question starts and runs to where the
