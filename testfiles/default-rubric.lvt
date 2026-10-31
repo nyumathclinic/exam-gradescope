@@ -1,0 +1,21 @@
+\input{regression-test.tex}
+\documentclass{exam}
+\usepackage{exam-gradescope}
+\DeclareRubric{basic}{
+  \item[1]   Correct
+  \item[1/2] Partly correct
+  \item[0]   No response}
+\gradescopesetup{default rubric=basic}
+\begin{document}
+\begin{questions}
+\question[4]\label{plain} No rubric of its own.\vspace{1in}
+\question[2]\label{own} A rubric of its own.\vspace{1in}
+\begin{rubric}\item[2] Right\item[0] Wrong\end{rubric}
+\end{questions}
+\clearpage
+\START
+\directlua{
+  examgradescope.resolve_regions()
+  texio.write_nl("log", examgradescope.to_json(examgradescope.rubrics()))
+}
+\END

@@ -245,6 +245,7 @@ and the derived files           exam-gradescope.ins,
 % points split evenly among them, with a warning.
 %
 % \changes{unreleased}{2026/10/30}{Added the \texttt{parts} key, to grade parts together}
+% \changes{unreleased}{2026/10/31}{Fixed the \texttt{default rubric} option, which was not recognized}
 % With \texttt{parts=together}, put the rubric anywhere in the question, for
 % instance after |\end{parts}|, with a group for each part:
 % \begin{verbatim}
@@ -506,7 +507,7 @@ and the derived files           exam-gradescope.ins,
   debugregions.usage = load,
   showrubric.if = eg@show,
   margin.code = \eg@option{margin}{\number\dimexpr#1\relax},
-  default~rubric.code = \eg@option{default_rubric}{"\luaescapestring{#1}"},
+  default rubric.code = \eg@option{default_rubric}{"\luaescapestring{#1}"},
   outline.if = eg@outline,
   rubric.if = eg@rubric,
   key.if = eg@key,

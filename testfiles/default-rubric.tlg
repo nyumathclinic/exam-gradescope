@@ -1,0 +1,42 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+{
+  "questions": [
+    {
+      "question": "1",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Correct",
+          "weight": 4
+        },
+        {
+          "description": "Partly correct",
+          "weight": 2
+        },
+        {
+          "description": "No response",
+          "weight": 0
+        }
+      ]
+    },
+    {
+      "question": "2",
+      "scoring_type": "positive",
+      "floor": true,
+      "ceiling": true,
+      "rubric_items": [
+        {
+          "description": "Right",
+          "weight": 2
+        },
+        {
+          "description": "Wrong",
+          "weight": 0
+        }
+      ]
+    }
+  ]
+}
