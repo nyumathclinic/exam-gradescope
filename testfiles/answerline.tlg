@@ -1,0 +1,90 @@
+This is a generated file for the l3build validation system.
+Don't change this file in any respect.
+{
+  "identification_regions": {},
+  "question_data": [
+    {
+      "title": "",
+      "weight": 10,
+      "crop_rect_list": [
+        {
+          "page_number": 1,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 32
+        }
+      ]
+    },
+    {
+      "title": "",
+      "children": [
+        {
+          "title": "(a)",
+          "weight": 4,
+          "crop_rect_list": [
+            {
+              "page_number": 3,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 10.6,
+              "y2": 24.6
+            }
+          ]
+        },
+        {
+          "title": "(b)",
+          "weight": 6,
+          "crop_rect_list": [
+            {
+              "page_number": 3,
+              "x1": 8.8,
+              "x2": 91.2,
+              "y1": 24.6,
+              "y2": 38.9
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 10,
+      "crop_rect_list": [
+        {
+          "page_number": 5,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 89.1
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 10,
+      "crop_rect_list": [
+        {
+          "page_number": 7,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 89.1
+        }
+      ]
+    },
+    {
+      "title": "",
+      "weight": 5,
+      "crop_rect_list": [
+        {
+          "page_number": 9,
+          "x1": 8.8,
+          "x2": 91.2,
+          "y1": 9.1,
+          "y2": 22.6
+        }
+      ]
+    }
+  ]
+}

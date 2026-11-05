@@ -130,6 +130,9 @@ and the derived files           exam-gradescope.ins,
 %\maketitle
 %
 %\changes{v0.1}{2026/10/30}{First version}
+%\changes{v0.2}{2026/11/05}{A region ends at its last answer line, or where
+%   its question ends, instead of running to the next question across any
+%   pages in between; new option \texttt{answer pad}}
 %
 % \begin{abstract}
 %   The \textsf{exam-gradescope} package records the questions of a document
@@ -381,6 +384,8 @@ and the derived files           exam-gradescope.ins,
 %     questions that have none;
 %   \item[\texttt{margin=}\meta{length}] how far question regions extend left
 %     and right of the text area (default 18pt);
+%   \item[\texttt{answer pad=}\meta{length}] how far a region extends below
+%     the answer line it ends at (default 3pt);
 %   \item[\texttt{outline}, \texttt{rubric}, \texttt{key}, \texttt{manifest}]
 %     \texttt{=false} to not write that file;
 %   \item[\texttt{debugregions}] draw the regions of the previous run on each
@@ -411,12 +416,25 @@ and the derived files           exam-gradescope.ins,
 %
 % \section{How regions are found}
 %
-% A question's region starts where the question starts and runs to where the
-% next one starts, across pages if need be, within the text area widened by
-% \option{margin}. The last question runs to the foot of its page, where the
-% space for its answer is. A part's region runs to the next part, or to the
-% end of the question. Slivers shorter than 12pt, left when a question starts
-% at the very foot of a page, are dropped.
+% A question's region starts where the question starts, within the text area
+% widened by \option{margin}, and ends
+% \begin{enumerate}
+%   \item at its last |\answerline|, just below the line (by
+%     \option{answer pad}), so that the answer blank is the region's bottom
+%     right corner; or else
+%   \item if the question is written as an environment,
+%     |\begin{question}|\dots|\end{question}|, at the foot of the page where
+%     it ends; or else
+%   \item where the next question starts, if that is on the same page; or else
+%   \item at the foot of the page of its start (or of its last part), or, for
+%     the last question, of the page where the |questions| environment ends.
+% \end{enumerate}
+% So a region spans several pages only when the question's answer line, or
+% its end, is on a later page; a page left blank for scratch work before the
+% next question is not part of it. A part's region ends the same way, at its
+% own last answer line or else at the next part (if on the same page); the
+% last part ends like its question. Slivers shorter than 12pt, left when a
+% question starts at the very foot of a page, are dropped.
 %
 % Each start is recorded with |\latelua|, which gives the exact position on the
 % page when the page is shipped out; so the files are right after a single
@@ -484,6 +502,7 @@ and the derived files           exam-gradescope.ins,
 \fi
 
 \RequirePackage{etoolbox}
+\RequirePackage{xpatch}
 \directlua{examgradescope = require("exam-gradescope")}
 %</package>
 %    \end{macrocode}
@@ -507,6 +526,7 @@ and the derived files           exam-gradescope.ins,
   debugregions.usage = load,
   showrubric.if = eg@show,
   margin.code = \eg@option{margin}{\number\dimexpr#1\relax},
+  answer pad.code = \eg@option{answer_pad}{\number\dimexpr#1\relax},
   default rubric.code = \eg@option{default_rubric}{"\luaescapestring{#1}"},
   outline.if = eg@outline,
   rubric.if = eg@rubric,
@@ -553,6 +573,22 @@ and the derived files           exam-gradescope.ins,
   }{}{\PackageError{exam-gradescope}{Could not patch exam's \string\process@part}{}}%
 }{}{\PackageError{exam-gradescope}{Could not patch the parts environment}{}}
 \AddToHook{env/parts/end}{\directlua{examgradescope.end_parts()}}
+%</package>
+%    \end{macrocode}
+%
+% Where the answer goes, and where a question's content ends: a mark just
+% below each |\answerline| (after its closing |\par|, so at the line's foot),
+% and one at the end of a question written as an environment,
+% |\begin{question}|\dots|\end{question}| (exam's |\question| used as an
+% environment: \LaTeX\ runs the generic |env/question/end| hook for it too).
+% A region ends at the last of these marks; see |eg.resolve_regions|.
+%
+%    \begin{macrocode}
+%<*package>
+\xapptocmd\answerline{\eg@mark{answer}{0}}{}{%
+  \PackageWarning{exam-gradescope}{Could not patch \string\answerline;
+    regions will not end at answer lines}}
+\AddToHook{env/question/end}{\ifhmode\par\fi\eg@mark{qend}{0}}
 %</package>
 %    \end{macrocode}
 %
@@ -731,6 +767,7 @@ eg.options = {
   mc = "gradescope",               -- where MC and CATA questions go: "gradescope" or "bubble"
   margin = 18 * 65536,             -- added left and right of the text area
   min_height = 12 * 65536,         -- shorter rectangles are dropped
+  answer_pad = 3 * 65536,          -- kept below an answer line, in its region
   default_rubric = "",             -- preset for free-response questions with no rubric
   outline = true, rubric = true, key = true, manifest = true,
 }
@@ -869,7 +906,8 @@ local function page_number()
   return status.total_pages + 1
 end
 
--- From \latelua: kind is "question", "part" or "end".
+-- From \latelua: kind is "question", "part", "end" (of the questions),
+-- "answer" (the foot of an \answerline) or "qend" (of a question environment).
 function eg.mark(kind, index, part)
   local h, v = pdf.getpos()
   eg.marks[#eg.marks + 1] = {
@@ -1233,41 +1271,83 @@ local function span(from, to)
   return rects
 end
 
--- Each question's (and part's) rectangles run from its mark to the next
--- question's (or part's) mark. Call it once every page has been shipped out.
+-- Where each question's (and part's) region ends. Call it once every page
+-- has been shipped out. A region starts at its question's (or part's) mark
+-- and ends, in this order of preference:
+-- 1. at the foot of its last \answerline (plus answer_pad), so that the
+--    answer blank is the region's bottom right corner;
+-- 2. for a question written as an environment, at the foot of the text area
+--    on the page where the environment ends;
+-- 3. at the next question's (or part's) start, if that is on the same page
+--    as the region's last mark;
+-- 4. at the foot of the text area on the page of the region's last mark
+--    (its own start, or its last part's), or, for the last question, of the
+--    page that ends the questions environment.
+-- Rules 1, 2 and 4 keep a region off the pages between questions, such as a
+-- blank page for scratch work before the next question.
 function eg.resolve_regions()
   local starts = {}   -- question and end marks, in document order
-  for _, m in ipairs(eg.marks) do
+  for i, m in ipairs(eg.marks) do
+    m.seq = i
     if m.kind == "question" then
       eg.questions[m.index].mark = m
       starts[#starts + 1] = m
     elseif m.kind == "part" then
       eg.questions[m.index].parts[m.part].mark = m
-    else
+    elseif m.kind == "end" then
       starts[#starts + 1] = m
     end
   end
-  for i, m in ipairs(starts) do
-    local nxt = starts[i + 1]
-    -- The last question's answer space is the rest of its page, after its
-    -- text, so it runs to the foot of the text area: of the page with the
-    -- end of the questions or, if that mark was never shipped out (it was
-    -- alone on a page), of the page of the question's last mark.
-    if m.kind == "question" and (not nxt or nxt.kind == "end") then
-      local last = m
-      for _, p in ipairs(eg.questions[m.index].parts) do
-        if p.mark and p.mark.page >= last.page then last = p.mark end
-      end
-      local page = nxt and math.max(nxt.page, last.page) or last.page
-      nxt = {page = page, y = eg.layout.top + eg.layout.height, width = m.width, height = m.height}
+  local foot = eg.layout.top + eg.layout.height
+  local function foot_of(page, m)
+    return {page = page, y = foot, width = m.width, height = m.height}
+  end
+  -- The last mark of a kind strictly between two positions in eg.marks.
+  local function last_between(kind, from, to)
+    local found
+    for k = from + 1, to - 1 do
+      if eg.marks[k].kind == kind then found = eg.marks[k] end
     end
-    if m.kind == "question" and nxt then
+    return found
+  end
+  -- Where a region from mark `from` ends, with `to` the position of the next
+  -- start in eg.marks, `nxt` that start (if any), `last` the region's last
+  -- own mark and `env` whether the end of a question environment counts.
+  local function region_end(from, to, nxt, last, env)
+    local answer = last_between("answer", from.seq, to)
+    if answer then
+      local y = answer.y + eg.options.answer_pad
+      -- the padding stops where the next region starts
+      if nxt and nxt.page == answer.page and nxt.y < y then y = math.max(answer.y, nxt.y) end
+      return {page = answer.page, y = y, width = answer.width, height = answer.height}
+    end
+    local qend = env and last_between("qend", from.seq, to)
+    local base = qend or last
+    if nxt and nxt.kind ~= "end" and nxt.page == base.page then return nxt end
+    if qend then return foot_of(qend.page, qend) end
+    -- The last question's answer space is the rest of the page that ends the
+    -- questions, or of its last mark's page if that was never shipped out.
+    local page = (nxt and nxt.kind == "end") and math.max(nxt.page, last.page) or last.page
+    return foot_of(page, last)
+  end
+  for i, m in ipairs(starts) do
+    if m.kind == "question" then
+      local nxt = starts[i + 1]
+      local to = nxt and nxt.seq or #eg.marks + 1
       local q = eg.questions[m.index]
-      q.crop_rect_list = span(m, nxt)
+      local last = m
+      for _, p in ipairs(q.parts) do
+        if p.mark and p.mark.seq > last.seq then last = p.mark end
+      end
+      q.crop_rect_list = span(m, region_end(m, to, nxt, last, true))
       for j, p in ipairs(q.parts) do
         if p.mark then
-          local after = q.parts[j + 1] and q.parts[j + 1].mark or nxt
-          p.crop_rect_list = span(p.mark, after)
+          local after = q.parts[j + 1] and q.parts[j + 1].mark
+          if after then
+            p.crop_rect_list = span(p.mark, region_end(p.mark, after.seq, after, p.mark, false))
+          else
+            p.crop_rect_list = span(p.mark, region_end(p.mark, to, nxt, p.mark, true))
+          end
         end
       end
     end

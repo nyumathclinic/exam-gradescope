@@ -1,0 +1,38 @@
+\input{regression-test.tex}
+\documentclass{exam}
+\usepackage{exam-gradescope}
+\begin{document}
+\begin{questions}
+% Ends at its answer line; the scratch page after it is not in its region.
+\begin{question}[10]\label{q-answer} Find it.\vspace{2in}
+  \answerline
+\end{question}
+\clearpage Scratch.\clearpage
+% Each part ends at its own answer line.
+\begin{question}\label{q-parts} Two parts.
+\begin{parts}
+  \part[4] First.\vspace{1in}
+    \answerline
+  \part[6] Second.\vspace{1in}
+    \answerline
+\end{parts}
+\end{question}
+\clearpage Scratch.\clearpage
+% An environment without an answer line: the foot of the page it ends on.
+\begin{question}[10]\label{q-env} No answer line.\vspace{1in}
+\end{question}
+\clearpage Scratch.\clearpage
+% A command without an answer line: the foot of the page it starts on.
+\question[10]\label{q-cmd} No answer line, no environment.\vspace{1in}
+\clearpage Scratch.\clearpage
+% The last question ends at its answer line too.
+\question[5]\label{q-last} Last.\vspace{1in}
+  \answerline
+\end{questions}
+\clearpage
+\START
+\directlua{
+  examgradescope.resolve_regions()
+  texio.write_nl("log", examgradescope.to_json(examgradescope.outline()))
+}
+\END
