@@ -1,5 +1,5 @@
 module = "exam-gradescope"
-version = "0.1"
+version = "0.2"
 date = "2026-10-30"
 
 -- Source files for the module

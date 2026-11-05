@@ -93,11 +93,11 @@ and the derived files           exam-gradescope.ins,
 %<*package>
 \NeedsTeXFormat{LaTeX2e}[2023/06/01]
 \ProvidesPackage{exam-gradescope}
-  [2026/10/30 v0.1 Gradescope outlines, rubrics and answer keys for the exam class]
+  [2026/11/05 v0.2 Gradescope outlines, rubrics and answer keys for the exam class]
 %</package>
 %<*driver>
 \ProvidesFile{exam-gradescope.dtx}
-  [2026/10/30 v0.1 Gradescope outlines, rubrics and answer keys for the exam class]
+  [2026/11/05 v0.2 Gradescope outlines, rubrics and answer keys for the exam class]
 \documentclass{ltxdoc}
 \usepackage{hologo}
 \usepackage[hidelinks]{hyperref}
@@ -247,8 +247,8 @@ and the derived files           exam-gradescope.ins,
 % to the part. A question whose parts have no points of their own has its
 % points split evenly among them, with a warning.
 %
-% \changes{unreleased}{2026/10/30}{Added the \texttt{parts} key, to grade parts together}
-% \changes{unreleased}{2026/10/31}{Fixed the \texttt{default rubric} option, which was not recognized}
+% \changes{v0.2}{2026/10/30}{Added the \texttt{parts} key, to grade parts together}
+% \changes{v0.2}{2026/10/31}{Fixed the \texttt{default rubric} option, which was not recognized}
 % With \texttt{parts=together}, put the rubric anywhere in the question, for
 % instance after |\end{parts}|, with a group for each part:
 % \begin{verbatim}
